@@ -1,0 +1,9 @@
+export const FORM_CACHE_KEY = 'formData';
+export const SECONDS_IN_ONE_MINUTE = 60;
+export const METERS_IN_ONE_KM = 1000;
+export const MULTIPLIER_MILES_TO_KM = 1.61;
+export const MULTIPLIER_KM_TO_MILES = 1 / MULTIPLIER_MILES_TO_KM;
+export const MULTIPLIER_LBS_TO_KG = 0.454;
+export const MULTIPLIER_KG_TO_LBS = 1 / MULTIPLIER_LBS_TO_KG;
+export const MULTIPLIER_FEET_TO_MET = 0.3048;
+export const MULTIPLIER_MET_TO_FEET = 1 / MULTIPLIER_FEET_TO_MET;
