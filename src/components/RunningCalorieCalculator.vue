@@ -1,7 +1,7 @@
 <template>
     <v-container class="RunningCalorieCalculator">
         <v-row>
-            <v-col cols="8">
+            <v-col cols="12" md="8">
                 <v-form class="calculator">
                     <v-container>
                         <v-row>
@@ -12,8 +12,7 @@
                                     label="Age"
                                     type="number"
                                     outlined
-                                    clearable
-                                />
+                                    clearable />
                             </v-col>
                         </v-row>
                         <v-row>
@@ -24,67 +23,44 @@
                                     label="Weight"
                                     type="number"
                                     outlined
-                                    clearable
-                                />
+                                    clearable />
                             </v-col>
 
                             <v-col cols="6">
-                                <v-radio-group
+                                <v-select
                                     v-model="formData.weightUnit"
-                                    row
-                                >
-                                    <v-radio label="pounds" value="imperial" />
-                                    <v-radio label="kilos" value="metric" />
-                                </v-radio-group>
+                                    :items="unitDropdownItems.weight"
+                                    hide-details="auto"
+                                    outlined />
                             </v-col>
                         </v-row>
+
                         <v-row>
                             <v-divider></v-divider>
                         </v-row>
-                        <v-row>
-                            <v-col cols="12">
+
+                        <v-row align="center">
+                            <v-col cols="6">
                                 <v-text-field
                                     hide-details="auto"
                                     v-model="formData.degree"
-                                    :disabled="disabledField.degree"
                                     label="Degree (%)"
                                     type="number"
                                     outlined
-                                    clearable
-                                />
+                                    clearable />
                             </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12"> - or - </v-col>
+                            <v-col cols="6">
+                                <v-btn
+                                    color="primary"
+                                    small
+                                    text
+                                    @click.stop="modals.inclineCalculatorModal = true">
+                                    Calculate
+                                </v-btn>
+                            </v-col>
                         </v-row>
                         <v-row>
                             <v-col cols="6">
-                                <v-text-field
-                                    hide-details="auto"
-                                    v-model="formData.elevation"
-                                    :disabled="disabledField.elevation"
-                                    label="Elevation"
-                                    type="number"
-                                    outlined
-                                    clearable
-                                />
-                            </v-col>
-
-                            <v-col cols="6">
-                                <v-radio-group
-                                    v-model="formData.elevationUnit"
-                                    row
-                                >
-                                    <v-radio label="feet" value="imperial" />
-                                    <v-radio label="meters" value="metric" />
-                                </v-radio-group>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-divider></v-divider>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12">
                                 <v-text-field
                                     hide-details="auto"
                                     v-model="formData.time"
@@ -92,8 +68,7 @@
                                     label="Time (min)"
                                     type="number"
                                     outlined
-                                    clearable
-                                />
+                                    clearable />
                             </v-col>
                         </v-row>
                         <v-row>
@@ -105,21 +80,15 @@
                                     label="Distance"
                                     type="number"
                                     outlined
-                                    clearable
-                                />
+                                    clearable />
                             </v-col>
 
                             <v-col cols="6">
-                                <v-radio-group
+                                <v-select
                                     v-model="formData.distanceUnit"
-                                    row
-                                >
-                                    <v-radio label="miles" value="imperial" />
-                                    <v-radio
-                                        label="kilometers"
-                                        value="metric"
-                                    />
-                                </v-radio-group>
+                                    :items="unitDropdownItems.distance"
+                                    hide-details="auto"
+                                    outlined />
                             </v-col>
                         </v-row>
                         <v-row>
@@ -131,41 +100,28 @@
                                     label="Speed"
                                     type="number"
                                     outlined
-                                    clearable
-                                />
+                                    clearable />
                             </v-col>
 
                             <v-col cols="6">
-                                <v-radio-group v-model="formData.speedUnit" row>
-                                    <v-radio label="mph" value="imperial" />
-                                    <v-radio label="kmph" value="metric" />
-                                </v-radio-group>
+                                <v-select
+                                    v-model="formData.speedUnit"
+                                    :items="unitDropdownItems.speed"
+                                    hide-details="auto"
+                                    outlined />
                             </v-col>
                         </v-row>
                         <v-row>
                             <v-col cols="12">
                                 <v-checkbox
                                     v-model="formData.saveMeasurements"
-                                    label="Save measurements and configuration for next time."
-                                />
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="12">
-                                <v-btn
-                                    type="submit"
-                                    class="ma-2"
-                                    outlined
-                                    color="indigo"
-                                >
-                                    Submit
-                                </v-btn>
+                                    label="Save measurements and configuration for next time." />
                             </v-col>
                         </v-row>
                     </v-container>
                 </v-form>
             </v-col>
-            <v-col cols="4">
+            <v-col cols="12" md="4">
                 <v-row>
                     <v-col cols="12">
                         <v-card>
@@ -177,9 +133,7 @@
 
                             <v-list dense>
                                 <v-list-item>
-                                    <v-list-item-content
-                                        >Calories:</v-list-item-content
-                                    >
+                                    <v-list-item-content>Calories:</v-list-item-content>
                                     <v-list-item-content class="align-end">
                                         {{ calories }}
                                     </v-list-item-content>
@@ -197,49 +151,15 @@
                             disable-sort
                             hide-default-footer
                             :headers="conversionTableHeader"
-                            :items="[
-                                {
-                                    name: 'Calories',
-                                    metric: calories,
-                                },
-                                {
-                                    name: 'Degree',
-                                    metric: degree,
-                                },
-                            ]"
-                            class="elevation-1"
-                        />
-                        <table>
-                            <tr>
-                                <td>Calories:</td>
-                                <td>{{ calories }}</td>
-                                <td></td>
-                            </tr>
-                            <tr>
-                                <td>Degree</td>
-                                <td>{{ degree }}%</td>
-                                <td></td>
-                            </tr>
-                            <tr
-                                v-for="(value, key, i) in dataUnitMap"
-                                :key="i"
-                                class="data-chart"
-                            >
-                                <td>{{ key }}:</td>
-                                <td>
-                                    {{ conversion.metric[key] }}
-                                    {{ value.metric }}
-                                </td>
-                                <td>
-                                    {{ conversion.imperial[key] }}
-                                    {{ value.imperial }}
-                                </td>
-                            </tr>
-                        </table>
+                            :items="conversionTableRows"
+                            class="elevation-1" />
                     </v-col>
                 </v-row>
             </v-col>
         </v-row>
+        <incline-calculator-modal
+            :value="modals.inclineCalculatorModal"
+            @save="onInclineCalculatorSave" />
     </v-container>
 </template>
 
@@ -256,10 +176,41 @@ import {
     METERS_IN_ONE_KM,
 } from '../utils/constants';
 
+import InclineCalculatorModal from './modals/InclineCalculatorModal.vue';
+
 export default {
     name: 'RunningCalorieCalculator',
+    components: { InclineCalculatorModal },
     data() {
         return {
+            conversionTableHeader: [
+                {
+                    text: 'Calculated',
+                    align: 'start',
+                    sortable: false,
+                    value: 'name',
+                },
+                { text: 'Metric', value: 'metric' },
+                { text: 'Imperial', value: 'imperial' },
+            ],
+            dataUnitMap: {
+                elevation: {
+                    imperial: 'ft.',
+                    metric: 'm.',
+                },
+                speed: {
+                    imperial: 'mph',
+                    metric: 'kph',
+                },
+                distance: {
+                    imperial: 'mi.',
+                    metric: 'm.',
+                },
+                weight: {
+                    imperial: 'lbs.',
+                    metric: 'kg.',
+                },
+            },
             formData: {
                 age: '',
                 degree: '',
@@ -274,37 +225,26 @@ export default {
                 weight: '',
                 weightUnit: 'metric',
             },
-            dataUnitMap: {
-                elevation: {
-                    imperial: 'ft.',
-                    metric: 'm.',
-                },
-                speed: {
-                    imperial: 'mph',
-                    metric: 'kmph',
-                },
-                distance: {
-                    imperial: 'mi.',
-                    metric: 'm.',
-                },
-                weight: {
-                    imperial: 'lbs.',
-                    metric: 'kg.',
-                },
-            },
-            conversionTableHeader: [
-                {
-                    text: 'Calculated',
-                    align: 'start',
-                    sortable: false,
-                    value: 'name',
-                },
-                { text: 'Metric', value: 'metric' },
-                { text: 'Imperial', value: 'imperial' },
-            ],
+            modals: {
+                inclineCalculatorModal: false,
+            }
         };
     },
     computed: {
+        unitDropdownItems () {
+            let items = {};
+
+            for (const [quantity, mapping] of Object.entries(this.dataUnitMap)) {
+                for (const [measurementSystem, unit] of Object.entries(mapping)) {
+                    items[quantity] = [ ...(items[quantity] || []), {
+                        text: unit,
+                        value: measurementSystem
+                    }]
+                }
+            }
+
+            return items;
+        },
         degree() {
             const { degree } = this.formData;
             const { distance, elevation } = this.conversion.metric;
@@ -343,20 +283,28 @@ export default {
             } = this.formData;
 
             /**
-             * Convert all to metric
+             * Convert all to numbers and metric
              */
+
+            elevation = Number(elevation);
 
             if (elevationUnit !== 'metric') {
                 elevation *= MULTIPLIER_FEET_TO_MET;
             }
 
+            speed = Number(speed);
+
             if (speedUnit !== 'metric') {
                 speed *= MULTIPLIER_MILES_TO_KM;
             }
 
+            distance = Number(distance);
+
             if (distanceUnit !== 'metric') {
                 distance *= MULTIPLIER_MILES_TO_KM;
             }
+
+            weight = Number(weight);
 
             if (weightUnit !== 'metric') {
                 weight *= MULTIPLIER_LBS_TO_KG;
@@ -401,13 +349,24 @@ export default {
                 },
             };
         },
+        conversionTableRows() {
+            const { conversion, dataUnitMap } = this;
+
+            return Object.keys(dataUnitMap).map((key) => ({
+                name: key,
+                imperial: `${parseFloat(conversion.imperial[key]).toFixed(2)} ${
+                    dataUnitMap[key].imperial
+                }`,
+                metric: `${parseFloat(conversion.metric[key]).toFixed(2)} ${
+                    dataUnitMap[key].metric
+                }`,
+            }));
+        },
         disabledField() {
-            const { degree, distance, elevation, speed, time } = this.formData;
+            const { distance, speed, time } = this.formData;
 
             return {
-                degree: !!elevation,
                 distance: !!(speed && time),
-                elevation: !!degree,
                 speed: !!(distance && time),
                 time: !!(distance && speed),
             };
@@ -418,14 +377,8 @@ export default {
     },
     methods: {
         cacheForm() {
-            const {
-                age,
-                saveMeasurements,
-                speedUnit,
-                distanceUnit,
-                weight,
-                weightUnit,
-            } = this.formData;
+            const { age, saveMeasurements, speedUnit, distanceUnit, weight, weightUnit } =
+                this.formData;
 
             if (!saveMeasurements) {
                 localStorage.removeItem(FORM_CACHE_KEY);
@@ -455,6 +408,12 @@ export default {
             }
 
             this.formData = { ...this.formData, ...formCache };
+        },
+        onInclineCalculatorSave (data) {
+            this.formData = { ...this.formData, ...data };
+            // this.$nextTick();
+            this.formData.degree = this.degree;
+            this.modals.inclineCalculatorModal = false;
         },
         onSubmit() {
             this.cacheForm();
