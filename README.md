@@ -1,4 +1,4 @@
-# calorie-calculator2
+# calorie-calculator
 
 ## Project setup
 ```
