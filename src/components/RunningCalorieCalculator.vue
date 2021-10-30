@@ -199,8 +199,8 @@ export default {
                     metric: 'm.',
                 },
                 speed: {
-                    imperial: 'mph',
-                    metric: 'kph',
+                    imperial: 'mph.',
+                    metric: 'kph.',
                 },
                 distance: {
                     imperial: 'mi.',
@@ -227,19 +227,22 @@ export default {
             },
             modals: {
                 inclineCalculatorModal: false,
-            }
+            },
         };
     },
     computed: {
-        unitDropdownItems () {
+        unitDropdownItems() {
             let items = {};
 
             for (const [quantity, mapping] of Object.entries(this.dataUnitMap)) {
                 for (const [measurementSystem, unit] of Object.entries(mapping)) {
-                    items[quantity] = [ ...(items[quantity] || []), {
-                        text: unit,
-                        value: measurementSystem
-                    }]
+                    items[quantity] = [
+                        ...(items[quantity] || []),
+                        {
+                            text: unit,
+                            value: measurementSystem,
+                        },
+                    ];
                 }
             }
 
@@ -409,7 +412,7 @@ export default {
 
             this.formData = { ...this.formData, ...formCache };
         },
-        onInclineCalculatorSave (data) {
+        onInclineCalculatorSave(data) {
             this.formData = { ...this.formData, ...data };
             // this.$nextTick();
             this.formData.degree = this.degree;
