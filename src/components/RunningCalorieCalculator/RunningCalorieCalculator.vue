@@ -29,7 +29,7 @@
                             <v-col cols="6">
                                 <v-select
                                     v-model="formData.weightUnit"
-                                    :items="unitDropdownItems.weight"
+                                    :items="dropdownOptions.weight"
                                     hide-details="auto"
                                     outlined />
                             </v-col>
@@ -86,7 +86,7 @@
                             <v-col cols="6">
                                 <v-select
                                     v-model="formData.distanceUnit"
-                                    :items="unitDropdownItems.distance"
+                                    :items="dropdownOptions.distance"
                                     hide-details="auto"
                                     outlined />
                             </v-col>
@@ -106,7 +106,7 @@
                             <v-col cols="6">
                                 <v-select
                                     v-model="formData.speedUnit"
-                                    :items="unitDropdownItems.speed"
+                                    :items="dropdownOptions.speed"
                                     hide-details="auto"
                                     outlined />
                             </v-col>
@@ -164,23 +164,18 @@
 </template>
 
 <script>
-import {
-    FORM_CACHE_KEY,
-    SECONDS_IN_ONE_MINUTE,
-    MULTIPLIER_MILES_TO_KM,
-    MULTIPLIER_KM_TO_MILES,
-    MULTIPLIER_LBS_TO_KG,
-    MULTIPLIER_KG_TO_LBS,
-    MULTIPLIER_FEET_TO_MET,
-    MULTIPLIER_MET_TO_FEET,
-    METERS_IN_ONE_KM,
-} from '../utils/constants';
+import convert from 'convert-units';
 
-import InclineCalculatorModal from './modals/InclineCalculatorModal.vue';
+import InclineCalculatorModal from './components/InclineCalculatorModal.vue';
+
+import { FORM_CACHE_KEY, METERS_IN_ONE_KM, UNIT_KEY } from '../../utils/constants';
+import { getConversions, getDropdownOptions } from './helpers';
 
 export default {
     name: 'RunningCalorieCalculator',
-    components: { InclineCalculatorModal },
+    components: {
+        InclineCalculatorModal,
+    },
     data() {
         return {
             conversionTableHeader: [
@@ -190,63 +185,79 @@ export default {
                     sortable: false,
                     value: 'name',
                 },
-                { text: 'Metric', value: 'metric' },
-                { text: 'Imperial', value: 'imperial' },
+                {
+                    text: 'Metric',
+                    value: 'metric',
+                },
+                {
+                    text: 'Imperial',
+                    value: 'imperial',
+                },
             ],
             dataUnitMap: {
                 elevation: {
-                    imperial: 'ft.',
-                    metric: 'm.',
+                    imperial: UNIT_KEY.FOOT,
+                    metric: UNIT_KEY.METER,
                 },
                 speed: {
-                    imperial: 'mph.',
-                    metric: 'kph.',
+                    imperial: UNIT_KEY.MILES_PER_HOUR,
+                    metric: UNIT_KEY.KILOMETERS_PER_HOUR,
                 },
                 distance: {
-                    imperial: 'mi.',
-                    metric: 'm.',
+                    imperial: UNIT_KEY.MILE,
+                    metric: UNIT_KEY.KILOMETER,
                 },
                 weight: {
-                    imperial: 'lbs.',
-                    metric: 'kg.',
+                    imperial: UNIT_KEY.POUND,
+                    metric: UNIT_KEY.KILOGRAM,
                 },
+            },
+            dropdownOptions: {
+                distance: getDropdownOptions('length', [UNIT_KEY.MILE, UNIT_KEY.KILOMETER]),
+                elevation: getDropdownOptions('length', [UNIT_KEY.METER, UNIT_KEY.FOOT]),
+                speed: getDropdownOptions('speed', [
+                    UNIT_KEY.MILES_PER_HOUR,
+                    UNIT_KEY.KILOMETERS_PER_HOUR,
+                ]),
+                weight: getDropdownOptions('mass', [UNIT_KEY.KILOGRAM, UNIT_KEY.POUND]),
             },
             formData: {
                 age: '',
                 degree: '',
                 distance: '',
-                distanceUnit: 'metric',
+                distanceUnit: UNIT_KEY.KILOMETER,
                 elevation: '',
-                elevationUnit: 'metric',
+                elevationUnit: UNIT_KEY.METER,
                 saveMeasurements: true,
                 speed: '',
-                speedUnit: 'metric',
+                speedUnit: UNIT_KEY.KILOMETERS_PER_HOUR,
                 time: '',
                 weight: '',
-                weightUnit: 'metric',
+                weightUnit: UNIT_KEY.KILOGRAM,
             },
             modals: {
                 inclineCalculatorModal: false,
             },
         };
     },
+    watch: {
+        cacheData: function () {
+            this.cacheForm();
+        },
+    },
     computed: {
-        unitDropdownItems() {
-            let items = {};
+        cacheData() {
+            let {
+                age,
+                distanceUnit,
+                elevationUnit,
+                saveMeasurements,
+                speedUnit,
+                weight,
+                weightUnit,
+            } = this.formData;
 
-            for (const [quantity, mapping] of Object.entries(this.dataUnitMap)) {
-                for (const [measurementSystem, unit] of Object.entries(mapping)) {
-                    items[quantity] = [
-                        ...(items[quantity] || []),
-                        {
-                            text: unit,
-                            value: measurementSystem,
-                        },
-                    ];
-                }
-            }
-
-            return items;
+            return `${age}|${distanceUnit}|${elevationUnit}|${saveMeasurements}|${speedUnit}|${weight}|${weightUnit}`;
         },
         degree() {
             const { degree } = this.formData;
@@ -272,85 +283,7 @@ export default {
             return (((groundSpeed * 1000) / 60 + 17.5) * time * weight) / 1000;
         },
         conversion() {
-            let {
-                degree,
-                distance,
-                distanceUnit,
-                elevation,
-                elevationUnit,
-                speed,
-                speedUnit,
-                time,
-                weight,
-                weightUnit,
-            } = this.formData;
-
-            /**
-             * Convert all to numbers and metric
-             */
-
-            elevation = Number(elevation);
-
-            if (elevationUnit !== 'metric') {
-                elevation *= MULTIPLIER_FEET_TO_MET;
-            }
-
-            speed = Number(speed);
-
-            if (speedUnit !== 'metric') {
-                speed *= MULTIPLIER_MILES_TO_KM;
-            }
-
-            distance = Number(distance);
-
-            if (distanceUnit !== 'metric') {
-                distance *= MULTIPLIER_MILES_TO_KM;
-            }
-
-            weight = Number(weight);
-
-            if (weightUnit !== 'metric') {
-                weight *= MULTIPLIER_LBS_TO_KG;
-            }
-
-            /**
-             * Solve for missing variables
-             */
-
-            // If solving for speed
-            if (!speed && time > 0) {
-                speed = (distance / time) * SECONDS_IN_ONE_MINUTE;
-            }
-
-            // If solving for time
-            if (!time && speed) {
-                time = (distance / speed) * SECONDS_IN_ONE_MINUTE;
-            }
-
-            // If solving for distance
-            if (!distance) {
-                distance = (speed * time) / SECONDS_IN_ONE_MINUTE;
-            }
-
-            // If solving for elevation
-            if (!elevation) {
-                elevation = (degree / 100) * distance * METERS_IN_ONE_KM;
-            }
-
-            return {
-                imperial: {
-                    distance: distance * MULTIPLIER_KM_TO_MILES,
-                    elevation: elevation * MULTIPLIER_MET_TO_FEET,
-                    speed: speed * MULTIPLIER_KM_TO_MILES,
-                    weight: weight * MULTIPLIER_KG_TO_LBS,
-                },
-                metric: {
-                    elevation,
-                    speed,
-                    distance,
-                    weight,
-                },
-            };
+            return getConversions(this.formData);
         },
         conversionTableRows() {
             const { conversion, dataUnitMap } = this;
@@ -379,9 +312,30 @@ export default {
         this.restoreFormCache();
     },
     methods: {
+        getDropdownOptions(measure, options) {
+            let units = convert().list(measure);
+
+            if (options) {
+                units = units.filter((unit) => options.includes(unit.abbr));
+            }
+
+            units = units.map((unit) => ({
+                text: unit.plural,
+                value: unit.abbr,
+            }));
+
+            return units;
+        },
         cacheForm() {
-            const { age, saveMeasurements, speedUnit, distanceUnit, weight, weightUnit } =
-                this.formData;
+            const {
+                age,
+                distanceUnit,
+                elevationUnit,
+                saveMeasurements,
+                speedUnit,
+                weight,
+                weightUnit,
+            } = this.formData;
 
             if (!saveMeasurements) {
                 localStorage.removeItem(FORM_CACHE_KEY);
@@ -390,8 +344,9 @@ export default {
 
             const cacheData = {
                 age,
-                speedUnit,
                 distanceUnit,
+                elevationUnit,
+                speedUnit,
                 weight,
                 weightUnit,
             };
@@ -414,12 +369,8 @@ export default {
         },
         onInclineCalculatorSave(data) {
             this.formData = { ...this.formData, ...data };
-            // this.$nextTick();
             this.formData.degree = this.degree;
             this.modals.inclineCalculatorModal = false;
-        },
-        onSubmit() {
-            this.cacheForm();
         },
     },
 };
