@@ -1,5 +1,9 @@
 import convert from 'convert-units';
-import { SECONDS_IN_ONE_MINUTE, METERS_IN_ONE_KM, UNIT_KEY } from '../../utils/constants';
+import {
+    MINUTES_IN_ONE_HOUR,
+    METERS_IN_ONE_KM,
+    UNIT_KEY
+} from './constants';
 
 export const getDropdownOptions = (measurement, options) => {
     let units = convert().list(measurement);
@@ -46,17 +50,17 @@ export const getConversions = ({
 
     // If solving for speed
     if (!speed && time > 0) {
-        speed = (distance / time) * SECONDS_IN_ONE_MINUTE;
+        speed = (distance / time) * MINUTES_IN_ONE_HOUR;
     }
 
     // If solving for time
     if (!time && speed) {
-        time = (distance / speed) * SECONDS_IN_ONE_MINUTE;
+        time = (distance / speed) * MINUTES_IN_ONE_HOUR;
     }
 
     // If solving for distance
     if (!distance) {
-        distance = (speed * time) / SECONDS_IN_ONE_MINUTE;
+        distance = (speed * time) / MINUTES_IN_ONE_HOUR;
     }
 
     // If solving for elevation
