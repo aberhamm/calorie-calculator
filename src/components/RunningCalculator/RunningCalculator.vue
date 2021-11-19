@@ -64,22 +64,6 @@ export default {
     },
     computed: {
         ...mapState('running', ['trips']),
-        // conversionTableRows() {
-        //     const { conversion, dataUnitMap } = this;
-
-        //     return Object.keys(dataUnitMap).map((key) => ({
-        //         name: key,
-        //         imperial: `${parseFloat(conversion.imperial[key]).toFixed(2)} ${
-        //             dataUnitMap[key].imperial
-        //         }`,
-        //         metric: `${parseFloat(conversion.metric[key]).toFixed(2)} ${
-        //             dataUnitMap[key].metric
-        //         }`,
-        //     }));
-        // },
-    },
-    mounted() {
-        // this.restoreFormCache();
     },
     methods: {
         ...mapActions('running', ['calculateCalories']),
