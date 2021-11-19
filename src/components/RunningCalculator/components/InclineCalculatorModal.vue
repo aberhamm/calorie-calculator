@@ -1,8 +1,8 @@
 <template>
-    <v-dialog :value="value" max-width="600px">
+    <v-dialog :value="open" max-width="600px">
         <v-card>
             <v-card-title>
-                <span class="text-h5">Calculate Incline</span>
+                <span class="text-h5">Calculate Incline Degree</span>
             </v-card-title>
             <v-card-text>
                 <v-container>
@@ -52,12 +52,18 @@
 </template>
 
 <script>
-import { UNIT_KEY } from '../../../utils/constants';
-import { getDropdownOptions } from '../helpers';
+import { UNIT_KEY } from '~/utils/constants';
+import {
+    calculateInclinePercentage,
+} from '~/utils/calculators';
 
 export default {
     props: {
-        value: {
+        dropdownOptions: {
+            type: Object,
+            default: () => ({}),
+        },
+        open: {
             type: Boolean,
             default: false,
         },
@@ -70,15 +76,15 @@ export default {
                 elevation: '',
                 elevationUnit: UNIT_KEY.METER,
             },
-            dropdownOptions: {
-                distance: getDropdownOptions('length', [UNIT_KEY.MILE, UNIT_KEY.KILOMETER]),
-                elevation: getDropdownOptions('length', [UNIT_KEY.METER, UNIT_KEY.FOOT]),
-            },
         };
     },
     methods: {
         onSave() {
-            this.$emit('save', this.formData);
+            const degree = calculateInclinePercentage(this.formData);
+            this.$emit('save', {
+                ...this.formData,
+                degree
+            });
         },
     },
 };

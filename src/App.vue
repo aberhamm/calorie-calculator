@@ -1,6 +1,11 @@
 <template>
     <v-app>
-        <v-app-bar app color="primary" dark>
+        <v-app-bar
+            app
+            color="primary"
+            dark
+            dense
+            elevation="0">
             <div class="d-flex align-center">
                 <v-toolbar-title>Calorie Calculator</v-toolbar-title>
             </div>

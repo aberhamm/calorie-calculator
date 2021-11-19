@@ -1,6 +1,6 @@
 {
     "singleQuote": true,
-    "proseWrap": "always",
+    "proseWrap": "never",
     "tabWidth": 4,
     "requireConfig": false,
     "useTabs": false,
